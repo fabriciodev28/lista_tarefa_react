@@ -11,13 +11,14 @@ import './Main.css'
 class Main extends Component {
     state = {
         novaTarefa: '',
-        tarefas: []
+        tarefas: [],
+        index: -1
     }
 
 
     handleSubmit = (e) =>{
         e.preventDefault()
-        const { tarefas } = this.state
+        const { tarefas, index } = this.state
         let { novaTarefa } = this.state
         novaTarefa = novaTarefa.trim()
 
@@ -25,9 +26,21 @@ class Main extends Component {
 
         const novasTarefas = [...tarefas]
 
-        this.setState({
-            tarefas: [...novasTarefas, novaTarefa]
-        })
+        if(index === -1){
+            this.setState({
+                tarefas: [...novasTarefas, novaTarefa],
+                novaTarefa: ''
+            })
+        }
+        else{
+            novasTarefas[index] = novaTarefa
+
+            this.setState({
+                tarefas: [...novasTarefas],
+                index: -1,
+                novaTarefa: ''
+            })
+        }
     }
 
     
@@ -37,28 +50,47 @@ class Main extends Component {
         })
     }
 
+    handleEdit = (e, index) =>{
+        const { tarefas } = this.state
+
+        this.setState({
+            index,
+            novaTarefa: tarefas[index]
+        })
+    }
+
+    handleDelete = (e, index) =>{
+        const { tarefas } = this.state
+        const novasTarefas = [...tarefas]
+        novasTarefas.splice(index, 1)
+
+        this.setState({
+            tarefas: [...novasTarefas]
+        })
+    }
+
 
 
     render(){
         
-        const {novaTarefa, tarefas} = this.state
+        const { novaTarefa,tarefas } = this.state
 
         return(
             <div className="main">
                 <h1>Lista de Tarefas</h1>
 
                 <form className="form" onSubmit={this.handleSubmit}>
-                    <input onChange={this.handleChange} type="text"></input>
+                    <input onChange={this.handleChange} type="text" value={novaTarefa}></input>
                     <button type="submit"><FaPlus/></button>
                 </form>
 
                 <ul className="tarefas">
-                    {tarefas.map((tarefa)=>(
+                    {tarefas.map((tarefa, index)=>(
                         <li key={tarefa}>
                             {tarefa}
                             <span>
-                                <FaEdit className="edit"/>
-                                <FaWindowClose className="delete"/>
+                                <FaEdit onClick={(e) => this.handleEdit(e, index)} className="edit"/>
+                                <FaWindowClose onClick={(e) => this.handleDelete(e, index)} className="delete"/>
                             </span>
                         </li>
                     ))}
